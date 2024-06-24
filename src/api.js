@@ -1,12 +1,18 @@
-const LOGIN_URL = "https://desafio-backend-olsr.onrender.com/auth/login";
+const LOGIN_URL = "https://desafio-backend-olsr.onrender.com";
 
-export const login = async (email, password) => {
-  const response = await fetch(LOGIN_URL, {
+export const login = async ({ email, password }) => {
+  const response = await fetch(`${LOGIN_URL}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ email, password }),
   });
-  return response.json();
+  
+  if (!response.ok) {
+    throw new Error("Login failed");
+  }
+  
+  const data = await response.json();
+  return data.data.token; // Suponiendo que el token está en data.token
 }

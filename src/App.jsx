@@ -1,23 +1,25 @@
-/* import { useState, useEffect } from "react"; */
 import { useForm } from "react-hook-form";
-/* import clsx from "clsx"; */
 import { login } from "./api";
-
+import { Toaster, toast } from "sonner";
 
 
 export default function App() {
     
-  const { handleSubmit } = useForm();
+  const { register, handleSubmit } = useForm();
   
   async function submit(data) {
     try {
-      const response = await login(data.email, data.password)
-      console.log(response);
-  } catch (error) { console.error(error); }
+      const token = await login({ email: data.email, password: data.password });
+      localStorage.setItem("token", token);
+      toast.success("Login successful");
+    } catch (error) {
+      toast.error("Login failed:", error.message);
+    }
   }
 
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
+      <Toaster position="top-right" />
       <div className="w-full max-w-md space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-foreground">
@@ -34,10 +36,7 @@ export default function App() {
             </a>
           </p>
         </div>
-        <form
-          className="space-y-6"
-          action="#" onSubmit={handleSubmit(submit)}
-        >
+        <form className="space-y-6" action="#" onSubmit={handleSubmit(submit)}>
           <div>
             <label className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block text-sm font-medium text-muted-foreground">
               Correo electrónico
@@ -45,10 +44,13 @@ export default function App() {
             <div className="mt-1">
               <input
                 className="h-10 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 block w-full appearance-none rounded-md border border-input bg-background px-3 py-2 placeholder-muted-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-                id="email"
-                required=""
-                type="email"
-                name="email"
+                {...register("email", {
+                  required: { value: true, message: "Campo requerido" },
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                    message: "Correo inválido",
+                  },
+                })}
               />
             </div>
           </div>
@@ -59,10 +61,9 @@ export default function App() {
             <div className="mt-1">
               <input
                 className="h-10 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 block w-full appearance-none rounded-md border border-input bg-background px-3 py-2 placeholder-muted-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-                id="password"
-                required=""
-                type="password"
-                name="password"
+                {...register("password", {
+                  required: { value: true, message: "Campo requerido" },
+                })}
               />
             </div>
           </div>
